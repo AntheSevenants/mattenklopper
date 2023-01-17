@@ -47,7 +47,7 @@ def main(din: Union[str, PathLike], dout: Union[str, PathLike], xpath: Union[str
     # Cf. https://stackoverflow.com/a/74797463/1150683
     xpath = xpath.replace("number(@begin)", "@begin")
 
-    files = list(Path(din).glob("*.xml"))
+    files = list(Path(din).rglob("*.xml"))
     pdout = Path(dout).resolve()
 
     pdout.mkdir(exist_ok=True, parents=True)
