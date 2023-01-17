@@ -42,6 +42,11 @@ def main(din: Union[str, PathLike], dout: Union[str, PathLike], xpath: Union[str
     # Make xpath query relative, because we will be executing it on subnodes if low_memory_usage
     # Cf. https://stackoverflow.com/a/74798156/1150683
     xpath = f".{xpath}"
+
+    # Rewrite Gretel XML query to be lxml compatible
+    # Cf. https://stackoverflow.com/a/74797463/1150683
+    xpath = xpath.replace("number(@begin)", "@begin")
+
     files = list(Path(din).glob("*.xml"))
     pdout = Path(dout).resolve()
 
