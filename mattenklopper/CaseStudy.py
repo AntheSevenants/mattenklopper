@@ -48,6 +48,7 @@ class CaseStudy:
 
         Args:
             xpath (str): the xpath string which matches the desired syntactic phenomena
+            secondary_processing (Callable): the function which should be applied to extract data when a sentence match has been found
 
         Returns:
             int: the number of hits
