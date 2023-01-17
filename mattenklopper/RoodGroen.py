@@ -1,7 +1,7 @@
 from .CaseStudy import CaseStudy
 from .Constants import Constants
 from tqdm.auto import tqdm
-
+from lxml import etree as ET
 
 class RoodGroen(CaseStudy):
     def filter(self, order: str):
@@ -26,7 +26,17 @@ class RoodGroen(CaseStudy):
 
         return super().filter(general_xpath, secondary_processing=secondary_processing)
 
-    def secondary_processing(self, element, order):
+    def secondary_processing(self, element : ET, order : str) -> tuple:
+        """Apply secondary processing for the RoodGroen case study
+
+        Args:
+            element (ET): the element containing the matched sentence
+            order (str): either "red" or "green"
+
+        Returns:
+            tuple: a tuple containing the participle and auxiliary lemmas
+        """
+
         # The following two xpaths are used to find the specific participles and auxiliaries
         # The query is the same for both orders, only the operators are different
         participle_xpath = Constants.SPECIFIC_XPATHS["participle"].replace(
