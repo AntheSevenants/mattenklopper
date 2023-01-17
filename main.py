@@ -50,6 +50,8 @@ def main(din: Union[str, PathLike], dout: Union[str, PathLike], xpath: Union[str
     files = list(Path(din).rglob("*.xml"))
     pdout = Path(dout).resolve()
 
+    total_hits = 0
+
     pdout.mkdir(exist_ok=True, parents=True)
     for pfin in tqdm(files, unit="file", position=0):
         pfout = pdout.joinpath(f"{pfin.stem}.txt")
@@ -59,6 +61,7 @@ def main(din: Union[str, PathLike], dout: Union[str, PathLike], xpath: Union[str
                                    unit="tree", position=1, leave=False, total=n_total_trees):
                 if element.xpath(xpath):
                     fhout.write(f"{element.find('sentence').text.strip()}\n")
+                    total_hits += 1
 
                 element.clear()
 
@@ -66,6 +69,7 @@ def main(din: Union[str, PathLike], dout: Union[str, PathLike], xpath: Union[str
         if pfout.stat().st_size == 0:
             pfout.unlink()
 
+    print(f"Found {total_hits} hits")
 
 if __name__ == "__main__":
     import argparse
