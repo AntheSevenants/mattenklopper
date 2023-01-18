@@ -5,6 +5,7 @@ from typing import Callable
 
 from lxml import etree as ET
 
+import os.path
 
 def get_tree_count(pfin: Path) -> int:
     """Count the number of "alpino_ds" nodes in a given file. We use iterparse to avoid OOM issues but that makes
@@ -36,6 +37,11 @@ class CaseStudy:
             corpus_directory (str): the directory where the Alpino-compatible corpus is stored, all XML files in here will be processed
             closed_class_items (dict): a dictionary specifying the lexical items that should definitely be part of the sentence in order for a match to occur
         """
+
+        # Check if corpus directory exists
+        if not os.path.exists(corpus_directory):
+            raise FileNotFoundError(corpus_directory)
+
         # Save the corpus directory
         self.corpus_directory = corpus_directory
 
