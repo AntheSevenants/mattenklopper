@@ -1,34 +1,40 @@
-# Query Alpino XML with XPath
+# mattenklopper
 
-A basic script to query Alpino XML files for a given XPath construction. It looks for the XPath query
-in all the XML files of the given input directory and writes the matching sentences to the output
-directory. One output file per input file. 
+Alpino corpus search, out of necessity
 
-Installation:
+mattenklopper is a corpus search engine tailor-made for the case studies in my PhD research. The goal of this program is to create specialised datasets from scratch (i.e. from corpus source files). The search engine is made specifically for quering [Alpino](https://www.let.rug.nl/vannoord/alp/Alpino/)-formatted corpora. It is based on the [xml_query](https://github.com/BramVanroy/xml_query) script by Bram Vanroy.
 
-```shell
-python -m pip install -r requirements.txt
-```
+mattenklopper does *not* aim to be able to create datasets for every single research use case. However, the interface it provides can be useful for other researchers to extend the current functionality for their own case studies.
 
-Usage:
+## Installing mattenklopper
 
-```
-usage: main.py [-h] din dout xpath
+### Preparation
 
-Extract all sentences from given Alpino files that match with a given XPath query and write them to output files.
+These instructions only have to be run once.
 
-positional arguments:
-  din         Directory that contains XML files with Alpino parses in them. All XML files in this directory will be queried against.
-  dout        Output directory to write results to, one per input file.
-  xpath       XPath query to use. Can be a string or a path to a file. In case of a file, its contents will be used as an XPath query
+1. Download and install [Python](https://www.python.org/).
+2. `git clone https://github.com/AntheSevenants/mattenklopper.git`,   
+    or download and unzip [this archive](https://github.com/AntheSevenants/mattenklopper/archive/refs/heads/main.zip).
+3. Open a terminal window. Navigate to the `mattenklopper` directory:  
+    `cd mattenklopper`
+4. Create a new virtual environment:  
+    `python -m venv venv` or `python3 -m venv venv`
+5. Activate the virtual environment:  
+    `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (unix)
+6. Install all dependencies:  
+    `pip install -r requirements.txt`
 
-optional arguments:
-  -h, --help  show this help message and exit
-```
+### Running
 
-Example:
+These instructions need to be followed every time you want to use the mattenklopper program.
 
-```shell
-python main.py dir/with/alpino/xml output/dir file_with_xpath_query.txt
-```
+1. Open a terminal window. Navigate to the `mattenklopper` directory:  
+    `cd mattenklopper`
+2. Activate the virtual environment:  
+    `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (unix)
+3. You can now run any of the case study scripts detailed below.
 
+## Future work
+
+* Impement other case studies
+* Support parallel processing
