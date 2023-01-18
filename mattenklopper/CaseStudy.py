@@ -73,6 +73,9 @@ class CaseStudy:
         # Recursively find all Alpino XML files
         files = list(Path(self.corpus_directory).rglob("*.xml"))
 
+        if len(files) == 0:
+            raise Exception("Corpus directory contains no XML files")
+
         for pfin in tqdm(files, unit="file", position=0):
             # print(pfin.stem)
             with pfin.open("rb") as fhin:
