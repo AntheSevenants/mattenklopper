@@ -2,7 +2,7 @@ from flashtext import KeywordProcessor
 from pathlib import Path
 from tqdm.auto import tqdm
 from typing import Callable
-
+from io import BytesIO
 from lxml import etree as ET
 
 import concurrent.futures
@@ -30,7 +30,6 @@ def get_tree_count(pfin: Path) -> int:
             element.clear()
 
     return el_count
-
 
 class CaseStudy:
     def __init__(self, corpus_directory: str, closed_class_items: dict) -> None:
@@ -83,41 +82,75 @@ class CaseStudy:
         # Turn all files into Paths
         files = [ Path(file) for file in files]
 
+        # Register a tqdm progress bar
+        progress_bar = tqdm(total=len(files), desc='Query progress')
+
         # Start a processing pool
         with concurrent.futures.ProcessPoolExecutor() as executor:
             # For each file, spawn a new process
-            results = list(tqdm(executor.map(self.filter_single, files), total=len(files)))
+            futures = [ executor.submit(self.filter_single, file) for file in files ]
 
-        output = []
-        # Results is an iterator, so we loop over it
-        for result in results:
-            # The result of the filter_single method can be empty
-            # We check for an empty result and only save actual results
-            if len(result) == 0:
-                continue
+            output = []
+            # Loop over future results as they become available
+            for future in concurrent.futures.as_completed(futures):
+                progress_bar.update(n=1)  # Increments counter
 
-            output.append(result)
+                result = future.result()
+                # The result of the filter_single method can be empty
+                # We check for an empty result and only save actual results
+                if len(result) == 0:
+                    continue
+                
+                output.append(result)
 
         return output
 
     def filter_single(self, pfin):
         total_hits = []
 
+        buffer_open = False
+
         # print(pfin.stem)
-        with pfin.open("rb") as fhin:
-            for _, element in ET.iterparse(fhin, tag="alpino_ds", events=("end", )):
-                # Extract the full sentence from the tree
-                sentence = element.find('sentence').text
-                # We check using flash text whether it's worth running xpath on this sentence
-                if len(self.keyword_processor.extract_keywords(sentence)) == 0:
-                    continue
+        with pfin.open("rt") as reader:
+            buf = []
 
-                # If the xpath matches, it means that the syntactic structure is the one we're looking for
-                if element.xpath(self.xpath):
-                    if self.secondary_processing is not None:
-                        secondary_data = self.secondary_processing(element)
-                        total_hits.append((sentence, secondary_data))
+            for line in reader:
+                # Open the buffer for writing when sentence opening tag has been found
+                if line.startswith("<alpino_ds"):
+                    buffer_open = True
+                # Close the buffer when closing tag is found
+                # In addition, parse the current buffer and get its hits
+                elif line.startswith("</alpino_ds"):
+                    buf.append(line)
+                    buffer_open = False
+                    total_hits = total_hits + self.filter_xml_buffer("\n".join(buf))
 
-                element.clear()
+                    # Reset buffer
+                    buf = []
+
+                # Only add lines if the buffer is open
+                if buffer_open:
+                    buf.append(line)
+
+        return total_hits
+
+    def filter_xml_buffer(self, xml):
+        total_hits = []
+
+        # Parse the XML from string
+        for _, element in ET.iterparse(BytesIO(xml.encode("UTF-8")), tag="alpino_ds", events=("end", )):
+            # Extract the full sentence from the tree
+            sentence = element.find('sentence').text
+            # We check using flash text whether it's worth running xpath on this sentence
+            if len(self.keyword_processor.extract_keywords(sentence)) == 0:
+                continue
+
+            # If the xpath matches, it means that the syntactic structure is the one we're looking for
+            if element.xpath(self.xpath):
+                if self.secondary_processing is not None:
+                    secondary_data = self.secondary_processing(element)
+                    total_hits.append((sentence, secondary_data))
+
+            element.clear()
 
         return total_hits
