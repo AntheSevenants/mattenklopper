@@ -98,6 +98,8 @@ class CaseStudy:
 
             output.append(result)
 
+        return output
+
     def filter_single(self, pfin):
         total_hits = []
 
