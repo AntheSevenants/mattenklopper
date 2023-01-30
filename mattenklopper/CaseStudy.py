@@ -80,13 +80,19 @@ class CaseStudy:
         if len(files) == 0:
             raise Exception("Corpus directory contains no XML files")
 
+        # Turn all files into Paths
         files = [ Path(file) for file in files]
 
+        # Start a processing pool
         with concurrent.futures.ProcessPoolExecutor() as executor:
+            # For each file, spawn a new process
             results = executor.map(self.filter_single, files)
 
         output = []
+        # Results is an iterator, so we loop over it
         for result in results:
+            # The result of the filter_single method can be empty
+            # We check for an empty result and only save actual results
             if len(result) == 0:
                 continue
 
