@@ -5,7 +5,10 @@ from typing import Callable
 
 from lxml import etree as ET
 
+import concurrent.futures
+
 import os.path
+
 
 def get_tree_count(pfin: Path) -> int:
     """Count the number of "alpino_ds" nodes in a given file. We use iterparse to avoid OOM issues but that makes
@@ -49,12 +52,11 @@ class CaseStudy:
         self.keyword_processor = KeywordProcessor()
         self.keyword_processor.add_keywords_from_dict(closed_class_items)
 
-    def filter(self, xpath: str, secondary_processing: Callable = None) -> int:
+    def filter(self, xpath: str) -> int:
         """Filter Alpino XML files with the given xpath string
 
         Args:
             xpath (str): the xpath string which matches the desired syntactic phenomena
-            secondary_processing (Callable): the function which should be applied to extract data when a sentence match has been found
 
         Returns:
             int: the number of hits
@@ -70,28 +72,44 @@ class CaseStudy:
         # Cf. https://stackoverflow.com/a/74797463/1150683
         xpath = xpath.replace("number(@begin)", "@begin")
 
+        self.xpath = xpath
+
         # Recursively find all Alpino XML files
         files = list(Path(self.corpus_directory).rglob("*.xml"))
 
         if len(files) == 0:
             raise Exception("Corpus directory contains no XML files")
 
-        for pfin in tqdm(files, unit="file", position=0):
-            # print(pfin.stem)
-            with pfin.open("rb") as fhin:
-                for _, element in ET.iterparse(fhin, tag="alpino_ds", events=("end", )):
-                    # Extract the full sentence from the tree
-                    sentence = element.find('sentence').text
-                    # We check using flash text whether it's worth running xpath on this sentence
-                    if len(self.keyword_processor.extract_keywords(sentence)) == 0:
-                        continue
+        files = [ Path(file) for file in files]
 
-                    # If the xpath matches, it means that the syntactic structure is the one we're looking for
-                    if element.xpath(xpath):
-                        if secondary_processing is not None:
-                            secondary_data = secondary_processing(element)
-                            total_hits.append((sentence, secondary_data))
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = executor.map(self.filter_single, files)
 
-                    element.clear()
+        output = []
+        for result in results:
+            if len(result) == 0:
+                continue
+
+            output.append(result)
+
+    def filter_single(self, pfin):
+        total_hits = []
+
+        # print(pfin.stem)
+        with pfin.open("rb") as fhin:
+            for _, element in ET.iterparse(fhin, tag="alpino_ds", events=("end", )):
+                # Extract the full sentence from the tree
+                sentence = element.find('sentence').text
+                # We check using flash text whether it's worth running xpath on this sentence
+                if len(self.keyword_processor.extract_keywords(sentence)) == 0:
+                    continue
+
+                # If the xpath matches, it means that the syntactic structure is the one we're looking for
+                if element.xpath(self.xpath):
+                    if self.secondary_processing is not None:
+                        secondary_data = self.secondary_processing(element)
+                        total_hits.append((sentence, secondary_data))
+
+                element.clear()
 
         return total_hits

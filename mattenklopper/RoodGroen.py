@@ -19,19 +19,15 @@ class RoodGroen(CaseStudy):
         # In this case, we want to find subordinate clauses with a perfective verb cluster (red or green depends on the setting)
         general_xpath = Constants.GENERAL_XPATHS[order]
 
-        # Secondary processing will be applied to the element containing a matched sentence
-        # In this case, we want to get the auxiliary and participle from that node
-        # We specify a lambda here with the correct order so the right xpaths will be used
-        secondary_processing = lambda element: self.secondary_processing(element, order)
+        self.order = order
 
-        return super().filter(general_xpath, secondary_processing=secondary_processing)
+        return super().filter(general_xpath)
 
-    def secondary_processing(self, element : ET, order : str) -> tuple:
+    def secondary_processing(self, element : ET) -> tuple:
         """Apply secondary processing for the RoodGroen case study
 
         Args:
             element (ET): the element containing the matched sentence
-            order (str): either "red" or "green"
 
         Returns:
             tuple: a tuple containing the participle and auxiliary lemmas
@@ -40,9 +36,9 @@ class RoodGroen(CaseStudy):
         # The following two xpaths are used to find the specific participles and auxiliaries
         # The query is the same for both orders, only the operators are different
         participle_xpath = Constants.SPECIFIC_XPATHS["participle"].replace(
-            "$SIGN$", Constants.OPERATORS["participle"][order])
+            "$SIGN$", Constants.OPERATORS["participle"][self.order])
         auxiliary_xpath = Constants.SPECIFIC_XPATHS["auxiliary"].replace(
-            "$SIGN$", Constants.OPERATORS["auxiliary"][order])
+            "$SIGN$", Constants.OPERATORS["auxiliary"][self.order])
 
         participle = element.xpath(participle_xpath)[0].get('lemma')
         auxiliary = element.xpath(auxiliary_xpath)[0].get('lemma')
