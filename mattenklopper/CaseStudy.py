@@ -86,7 +86,7 @@ class CaseStudy:
         # Start a processing pool
         with concurrent.futures.ProcessPoolExecutor() as executor:
             # For each file, spawn a new process
-            results = executor.map(self.filter_single, files)
+            results = list(tqdm(executor.map(self.filter_single, files), total=len(files)))
 
         output = []
         # Results is an iterator, so we loop over it
