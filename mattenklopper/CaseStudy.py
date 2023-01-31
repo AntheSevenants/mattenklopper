@@ -101,7 +101,7 @@ class CaseStudy:
                 if len(result) == 0:
                     continue
                 
-                output.append(result)
+                output = output + result
 
         return output
 
