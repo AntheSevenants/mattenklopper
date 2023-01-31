@@ -37,4 +37,3 @@ These instructions need to be followed every time you want to use the mattenklop
 ## Future work
 
 * Impement other case studies
-* Support parallel processing
