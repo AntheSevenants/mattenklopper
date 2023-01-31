@@ -111,7 +111,6 @@ class CaseStudy:
         buffer_open = False
         parse_OK = False
 
-        # print(pfin.stem)
         with pfin.open("rt") as reader:
             buf = []
 
@@ -131,7 +130,7 @@ class CaseStudy:
                     buf.append(line)
 
                     if parse_OK:
-                        total_hits = total_hits + self.filter_xml_buffer("\n".join(buf))
+                        total_hits = total_hits + self.filter_xml_buffer("\n".join(buf), pfin.stem)
 
                     buffer_open = False
                     parse_OK = False
@@ -145,7 +144,7 @@ class CaseStudy:
 
         return total_hits
 
-    def filter_xml_buffer(self, xml):
+    def filter_xml_buffer(self, xml, filename):
         total_hits = []
 
         # Parse the XML from string
@@ -157,7 +156,7 @@ class CaseStudy:
                     sentence = element.find('sentence').text
 
                     secondary_data = self.secondary_processing(element)
-                    total_hits.append((sentence, secondary_data))
+                    total_hits.append((sentence, filename, secondary_data))
 
             element.clear()
 
