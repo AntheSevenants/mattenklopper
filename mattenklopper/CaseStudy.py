@@ -9,28 +9,6 @@ import concurrent.futures
 
 import os.path
 
-
-def get_tree_count(pfin: Path) -> int:
-    """Count the number of "alpino_ds" nodes in a given file. We use iterparse to avoid OOM issues but that makes
-     it slow!
-
-    Args:
-        pfin (Path): input file to query for alpino_ds nodes
-
-    Returns:
-        int: number of alpino_ds nodes in the given file
-    """
-    el_count = 0
-    with pfin.open("rb") as fhin:
-        for _, element in tqdm(ET.iterparse(fhin, tag="alpino_ds", events=("end", )),
-                               unit="trees", leave=False, desc="Counting no. trees"):
-            el_count += 1
-
-            # Clean up to save memory
-            element.clear()
-
-    return el_count
-
 class CaseStudy:
     def __init__(self, corpus_directory: str, closed_class_items: dict) -> None:
         """Case study object which provides an abstraction for individual case studies
