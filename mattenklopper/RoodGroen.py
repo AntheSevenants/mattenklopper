@@ -40,7 +40,9 @@ class RoodGroen(CaseStudy):
         auxiliary_xpath = Constants.SPECIFIC_XPATHS["auxiliary"].replace(
             "$SIGN$", Constants.OPERATORS["auxiliary"][self.order])
 
-        participle = element.xpath(participle_xpath)[0].get('lemma')
-        auxiliary = element.xpath(auxiliary_xpath)[0].get('lemma')
+        participle = element.xpath(participle_xpath)[0].get('word')
+        participle_lemma = element.xpath(participle_xpath)[0].get('lemma')
+        auxiliary = element.xpath(auxiliary_xpath)[0].get('word')
+        auxiliary_lemma = element.xpath(auxiliary_xpath)[0].get('lemma')
 
-        return participle, auxiliary
+        return participle, auxiliary, participle_lemma, auxiliary_lemma
