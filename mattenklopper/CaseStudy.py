@@ -109,6 +109,7 @@ class CaseStudy:
         total_hits = []
 
         buffer_open = False
+        parse_OK = False
 
         # print(pfin.stem)
         with pfin.open("rt") as reader:
@@ -120,11 +121,21 @@ class CaseStudy:
                     buffer_open = True
                 # Close the buffer when closing tag is found
                 # In addition, parse the current buffer and get its hits
+                elif line.startswith("  <sentence"):
+                    # We check using flash text whether it's worth even parsing this sentence
+                    # We can already do this in the buffer stage so we skip parsing
+                    # (which is expensive)
+                    if len(self.keyword_processor.extract_keywords(line)) > 0:
+                        parse_OK = True
                 elif line.startswith("</alpino_ds"):
                     buf.append(line)
-                    buffer_open = False
-                    total_hits = total_hits + self.filter_xml_buffer("\n".join(buf))
 
+                    if parse_OK:
+                        total_hits = total_hits + self.filter_xml_buffer("\n".join(buf))
+
+                    buffer_open = False
+                    parse_OK = False
+                    
                     # Reset buffer
                     buf = []
 
@@ -139,15 +150,12 @@ class CaseStudy:
 
         # Parse the XML from string
         for _, element in ET.iterparse(BytesIO(xml.encode("UTF-8")), tag="alpino_ds", events=("end", )):
-            # Extract the full sentence from the tree
-            sentence = element.find('sentence').text
-            # We check using flash text whether it's worth running xpath on this sentence
-            if len(self.keyword_processor.extract_keywords(sentence)) == 0:
-                continue
-
             # If the xpath matches, it means that the syntactic structure is the one we're looking for
             if element.xpath(self.xpath):
                 if self.secondary_processing is not None:
+                    # Extract the full sentence from the tree
+                    sentence = element.find('sentence').text
+
                     secondary_data = self.secondary_processing(element)
                     total_hits.append((sentence, secondary_data))
 
