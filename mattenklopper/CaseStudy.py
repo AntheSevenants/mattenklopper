@@ -29,17 +29,18 @@ class CaseStudy:
         self.keyword_processor = KeywordProcessor()
         self.keyword_processor.add_keywords_from_dict(closed_class_items)
 
-    def filter(self, xpath: str) -> int:
+    def filter(self, xpath: str) -> list[tuple]:
         """Filter Alpino XML files with the given xpath string
 
         Args:
             xpath (str): the xpath string which matches the desired syntactic phenomena
 
-        Returns:
-            int: the number of hits
-        """
+        Raises:
+            Exception: if corpus directory contains no XML files
 
-        total_hits = []
+        Returns:
+            list[tuple]: list of corpus hits with the given syntactic structure
+        """
 
         # Make xpath query relative, because we will be executing it on subnodes if low_memory_usage
         # Cf. https://stackoverflow.com/a/74798156/1150683
@@ -49,6 +50,7 @@ class CaseStudy:
         # Cf. https://stackoverflow.com/a/74797463/1150683
         xpath = xpath.replace("number(@begin)", "@begin")
 
+        # Set the xpath that we will be using
         self.xpath = xpath
 
         # Recursively find all Alpino XML files
@@ -79,15 +81,25 @@ class CaseStudy:
                 if len(result) == 0:
                     continue
                 
+                # Add the found results to the current results
                 output = output + result
 
         return output
 
-    def filter_single(self, pfin):
+    def filter_single(self, pfin: Path) -> list[tuple]:
+        """Filter a single Alpino XML file and return all hits
+
+        Args:
+            pfin (Path): a Path object pointing to the Alpino XML file to check
+
+        Returns:
+            list[tuple]: list of corpus hits in the given file with the given syntactic structure
+        """
+
         total_hits = []
 
-        buffer_open = False
-        parse_OK = False
+        buffer_open = False # controls whether lines can be added to the buffer
+        parse_OK = False # controls whether the buffer should be parsed at all
 
         with pfin.open("rt") as reader:
             buf = []
@@ -96,20 +108,22 @@ class CaseStudy:
                 # Open the buffer for writing when sentence opening tag has been found
                 if line.startswith("<alpino_ds"):
                     buffer_open = True
-                # Close the buffer when closing tag is found
-                # In addition, parse the current buffer and get its hits
+                # We check using flash text whether it's worth even parsing this sentence
+                # We can already do this in the buffer stage so we skip parsing
+                # (which is expensive)
                 elif line.startswith("  <sentence"):
-                    # We check using flash text whether it's worth even parsing this sentence
-                    # We can already do this in the buffer stage so we skip parsing
-                    # (which is expensive)
                     if len(self.keyword_processor.extract_keywords(line)) > 0:
                         parse_OK = True
+                # Close the buffer when closing tag is found
+                # In addition, parse the current buffer and get its hits (if allowed)
                 elif line.startswith("</alpino_ds"):
                     buf.append(line)
 
+                    # Only parse if anything interesting was found using flashtext
                     if parse_OK:
                         total_hits = total_hits + self.filter_xml_buffer("\n".join(buf), pfin.stem)
 
+                    # Reset flags
                     buffer_open = False
                     parse_OK = False
                     
@@ -122,7 +136,16 @@ class CaseStudy:
 
         return total_hits
 
-    def filter_xml_buffer(self, xml, filename):
+    def filter_xml_buffer(self, xml: str, filename:str)-> list[tuple]:
+        """Filter a single Alpino sentence buffer and return the specified information
+
+        Args:
+            xml (str): a string containing a single Alpino sentence (i.e. one <alpino_ds> element)
+            filename (str): the filename of the file the Alpino sentence came from
+
+        Returns:
+            list[tuple]: list of corpus hits in the given file with the given syntactic structure
+        """
         total_hits = []
 
         # Parse the XML from string
@@ -133,9 +156,13 @@ class CaseStudy:
                     # Extract the full sentence from the tree
                     sentence = element.find('sentence').text
 
+                    # Secondary processing is set by children of the CaseStudy type
+                    # This method will run processing to find lexical elements in the syntactic structure
                     secondary_data = self.secondary_processing(element)
+                    # With the lexical elements obtained, add them to our list of hits
                     total_hits.append((sentence, filename, secondary_data))
 
+            # Performance/memory improvement
             element.clear()
 
         return total_hits

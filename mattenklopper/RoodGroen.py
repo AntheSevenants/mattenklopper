@@ -4,11 +4,17 @@ from tqdm.auto import tqdm
 from lxml import etree as ET
 
 class RoodGroen(CaseStudy):
-    def filter(self, order: str):
+    def filter(self, order: str) -> list[tuple]:
         """Apply the filtering operation for the RoodGroen case study
 
         Args:
             order (str): either "red" or "green"
+
+        Raises:
+            Exception: if order other than "red" or "green" is specified
+
+        Returns:
+            list[tuple]: list of tuples containing: (sentence, (participle, auxiliary, participle lemma, auxiliary lemma), filename)
         """
 
         if order not in ["red", "green"]:
@@ -30,7 +36,7 @@ class RoodGroen(CaseStudy):
             element (ET): the element containing the matched sentence
 
         Returns:
-            tuple: a tuple containing the participle and auxiliary lemmas
+            tuple: a tuple containing the participle, auxiliary, participle lemma and auxiliary lemma
         """
 
         # The following two xpaths are used to find the specific participles and auxiliaries
