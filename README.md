@@ -34,6 +34,20 @@ These instructions need to be followed every time you want to use the mattenklop
     `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (unix)
 3. You can now run any of the case study scripts detailed below.
 
+## Red and green word order in Dutch
+
+mattenklopper has built-in functionality which can filter red and green word order in Dutch subordinate sentences. Of course, you need an Alpino-formatted corpus. In addition, you need a "closed set" of items which will definitely appear in all your desired examples. The [flashtext](https://arxiv.org/abs/1711.00046) algorithm (thanks, [@lemontheme](https://github.com/lemontheme)) is used to quickly filter all sentences which are *definitely* not part of that set. In the case of the red and the green order, this file should include all possible auxiliaries which allow for a red and green alternation. This file is already included in the repository under [data/RoodGroen/closed_items.json](https://github.com/AntheSevenants/mattenklopper/blob/main/data/RoodGroen/closed_items.json).
+
+To recreate my dataset, run the following command. Make sure your virtual environment is enabled!
+
+```bash
+python3 RoodGroen.py "data/RoodGroen/closed_items.json" "/path/to/alpino/corpus/" --output_path "RoodGroen.csv"
+```
+
+* The argument `--output_path` is optional. If not supplied, the output file will be `RoodGroenAnthe.csv`.
+* You need to change "/path/to/alpino/corpus/" to a path pointing to your own Alpino corpus, such as [Lassy Klein](https://taalmaterialen.ivdnt.org/download/lassy-klein-corpus6/) or [Lassy Groot](https://taalmaterialen.ivdnt.org/download/tstc-lassy-groot-corpus/).
+
+
 ## Future work
 
 * Impement other case studies
