@@ -10,7 +10,7 @@ import concurrent.futures
 import os.path
 
 class CaseStudy:
-    def __init__(self, corpus_directory: str, closed_class_items: dict) -> None:
+    def __init__(self, corpus_directory: str, closed_class_items: dict=None) -> None:
         """Case study object which provides an abstraction for individual case studies
 
         Args:
@@ -26,8 +26,11 @@ class CaseStudy:
         self.corpus_directory = corpus_directory
 
         # Keyword processor
-        self.keyword_processor = KeywordProcessor()
-        self.keyword_processor.add_keywords_from_dict(closed_class_items)
+        if closed_class_items is not None:
+            self.keyword_processor = KeywordProcessor()
+            self.keyword_processor.add_keywords_from_dict(closed_class_items)
+        else:
+            self.keyword_processor = None
 
     def filter(self, xpath: str) -> list[tuple]:
         """Filter Alpino XML files with the given xpath string
@@ -112,7 +115,11 @@ class CaseStudy:
                 # We can already do this in the buffer stage so we skip parsing
                 # (which is expensive)
                 elif line.startswith("  <sentence"):
-                    if len(self.keyword_processor.extract_keywords(line)) > 0:
+                    # If keyword processing is not available, always parse
+                    if self.keyword_processor is None:
+                        parse_OK = True
+                    # Else, go for it
+                    elif len(self.keyword_processor.extract_keywords(line)) > 0:
                         parse_OK = True
                 # Close the buffer when closing tag is found
                 # In addition, parse the current buffer and get its hits (if allowed)
