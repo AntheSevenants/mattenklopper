@@ -166,8 +166,13 @@ class CaseStudy:
                     # Secondary processing is set by children of the CaseStudy type
                     # This method will run processing to find lexical elements in the syntactic structure
                     secondary_data = self.secondary_processing(element)
-                    # With the lexical elements obtained, add them to our list of hits
-                    total_hits.append((sentence, filename, secondary_data))
+
+                    if type(secondary_data) == tuple:
+                        # With the lexical elements obtained, add them to our list of hits
+                        total_hits.append((sentence, filename, secondary_data))
+                    elif type(secondary_data) == list:
+                        for secondary_data_tuple in secondary_data:
+                            total_hits.append((sentence, filename, secondary_data_tuple))
 
             # Performance/memory improvement
             element.clear()
