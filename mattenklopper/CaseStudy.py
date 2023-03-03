@@ -161,7 +161,12 @@ class CaseStudy:
             if element.xpath(self.xpath):
                 if self.secondary_processing is not None:
                     # Extract the full sentence from the tree
-                    sentence = element.find('sentence').text
+                    sentence_element = element.find('sentence')
+                    sentence = sentence_element.text
+                    sentence_id = None
+
+                    if "sentid" in sentence_element.attrib:
+                        sentence_id = sentence_element.get("sentid")
 
                     # Secondary processing is set by children of the CaseStudy type
                     # This method will run processing to find lexical elements in the syntactic structure
@@ -169,10 +174,10 @@ class CaseStudy:
 
                     if type(secondary_data) == tuple:
                         # With the lexical elements obtained, add them to our list of hits
-                        total_hits.append((sentence, filename, secondary_data))
+                        total_hits.append((sentence, filename, sentence_id, secondary_data))
                     elif type(secondary_data) == list:
                         for secondary_data_tuple in secondary_data:
-                            total_hits.append((sentence, filename, secondary_data_tuple))
+                            total_hits.append((sentence, filename, sentence_id, secondary_data_tuple))
 
             # Performance/memory improvement
             element.clear()

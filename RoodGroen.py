@@ -40,11 +40,12 @@ def results_to_dataframe(results, order):
     df_dict = []
     for result in results:
         row = {"sentence": result[0],
-               "participle": result[2][0],
-               "auxiliary": result[2][1],
-               "participle_lemma": result[2][2],
-               "auxiliary_lemma": result[2][3],
+               "participle": result[3][0],
+               "auxiliary": result[3][1],
+               "participle_lemma": result[3][2],
+               "auxiliary_lemma": result[3][3],
                "file": result[1],
+               "sentence_id": result[2],
                "order": order}
         df_dict.append(row)        
  
