@@ -32,8 +32,8 @@ def results_to_dataframe(results):
     df_dict = []
     for result in results:
         row = {"sentence": result[0],
-               "participle": result[3][0],
-               "participle_lemma": result[3][1],
+               "adjective": result[3][0],
+               "adjective_lemma": result[3][1],
                "file": result[1],
                "sentence_id": result[2] }
         df_dict.append(row)        
