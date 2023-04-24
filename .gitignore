@@ -237,3 +237,5 @@ cython_debug/
 output/
 *.csv
 *.code-workspace
+
+errors.txt
