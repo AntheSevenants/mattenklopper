@@ -172,6 +172,11 @@ class CaseStudy:
                     # This method will run processing to find lexical elements in the syntactic structure
                     secondary_data = self.secondary_processing(element)
 
+                    if secondary_data is None:
+                        with open("errors.txt", "at") as writer:
+                            writer.write(f"{filename},{sentence_id}\n")
+                        continue
+
                     if type(secondary_data) == tuple:
                         # With the lexical elements obtained, add them to our list of hits
                         total_hits.append((sentence, filename, sentence_id, secondary_data))
