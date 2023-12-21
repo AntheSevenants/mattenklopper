@@ -44,6 +44,8 @@ def results_to_dataframe(results, order):
                "auxiliary": result[3][1],
                "participle_lemma": result[3][2],
                "auxiliary_lemma": result[3][3],
+               "participle_index": result[3][4],
+               "auxiliary_index": result[3][5],
                "file": result[1],
                "sentence_id": result[2],
                "order": order}
