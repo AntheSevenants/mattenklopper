@@ -1,10 +1,11 @@
 class Constants:
-    GENERAL_XPATHS = {"red": """//node[@cat="cp" and node[@rel="cmp" and @pt="vg" and number(@begin) < ../node[@rel="body" and @cat="ssub"]/node[@rel="su" and @pt="vnw"]/number(@begin)] and node[@rel="body" and @cat="ssub" and node[@rel="su" and @pt="vnw" and number(@begin) < ../node[@rel="hd" and @pt="ww"]/number(@begin)] and node[@rel="hd" and @pt="ww" and number(@begin) < ../node[@rel="vc" and @cat="ppart"]/node[@rel="hd" and @pt="ww"]/number(@begin)] and node[@rel="vc" and @cat="ppart" and node[@rel="hd" and @pt="ww"]]]]""",
-                      "green": """//node[@cat="cp" and node[@rel="cmp" and @pt="vg" and number(@begin) < ../node[@rel="body" and @cat="ssub"]/node[@rel="su" and @pt="vnw"]/number(@begin)] and node[@rel="body" and @cat="ssub" and node[@rel="su" and @pt="vnw" and number(@begin) < ../node[@rel="vc" and @cat="ppart"]/node[@rel="hd" and @pt="ww"]/number(@begin)] and node[@rel="vc" and @cat="ppart" and node[@rel="hd" and @pt="ww" and number(@begin) < ../../node[@rel="hd" and @pt="ww"]/number(@begin)]] and node[@rel="hd" and @pt="ww"]]]""",
+    GENERAL_XPATHS = {"red": """//node[(@cat="cp" or @cat="rel" or @cat="inf") and //node[(@wvorm="pv" or @wvorm="inf") and @begin < ./preceding-sibling::node/node[@wvorm="vd"]/@begin | ./following-sibling::node/node[@wvorm="vd"]/@begin]]""",
+                      "green": """//node[(@cat="cp" or @cat="rel" or @cat="inf") and //node[(@wvorm="pv" or @wvorm="inf") and @begin > ./preceding-sibling::node/node[@wvorm="vd"]/@begin | ./following-sibling::node/node[@wvorm="vd"]/@begin]]""",
+                      "red_green": """//node[(@cat="cp" or @cat="rel" or @cat="inf") and .//node[(@pt="ww" or @rel="hd")] and .//node[@rel="hd" and @wvorm="vd"]]""",
                       "participles": """//node[@cat="top" and descendant::node[@wvorm="vd" and @pos="verb"]]""",
                       "adjectives": """//node[@cat="top" and descendant::node[@buiging="zonder" and @pos="adj"]]"""}
-    SPECIFIC_XPATHS = {"participle": """//node[@wvorm="vd" and @begin $SIGN$ ../following-sibling::node[@wvorm="pv"]/@begin | ../preceding-sibling::node[@wvorm="pv"]/@begin]""",
-                       "auxiliary": """//node[@wvorm="pv" and @begin $SIGN$ ./preceding-sibling::node/node[@wvorm="vd"]/@begin | ./following-sibling::node/node[@wvorm="vd"]/@begin]""",
+    SPECIFIC_XPATHS = {"participle": """.//node[@rel="hd" and @wvorm="vd" and @begin $SIGN$ ../../node[@rel="hd" and @pt="ww"]/@begin and not(../../@cat="smain")]""",
+                       "auxiliary": """.//node[@rel="hd" and @pt="ww" and @begin $SIGN$ ../node/node[@rel="hd" and @wvorm="vd"]/@begin and not(../@cat="smain")]""",
                        "participles": """//node[@wvorm="vd" and @pos="verb"]""",
                        "adjectives": """//node[@buiging="zonder" and @pos="adj"]"""}
     OPERATORS = {"participle": {"red": ">", "green": "<"},

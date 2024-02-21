@@ -156,33 +156,43 @@ class CaseStudy:
         total_hits = []
 
         # Parse the XML from string
-        for _, element in ET.iterparse(BytesIO(xml.encode("UTF-8")), tag="alpino_ds", events=("end", )):
+        alpino_ds = ET.fromstring(xml)
+        
+        # Extract the full sentence from the tree
+        sentence_element = alpino_ds.find('sentence')
+        sentence = sentence_element.text
+        sentence_id = None
+
+        # Don't worry, this is a surprise
+        words = sentence.split(" ")
+
+        if "sentid" in sentence_element.attrib:
+            sentence_id = sentence_element.get("sentid")
+
+        # Let's find different subordinate clauses
+        for element in alpino_ds.xpath(self.xpath):
             # If the xpath matches, it means that the syntactic structure is the one we're looking for
-            if element.xpath(self.xpath):
-                if self.secondary_processing is not None:
-                    # Extract the full sentence from the tree
-                    sentence_element = element.find('sentence')
-                    sentence = sentence_element.text
-                    sentence_id = None
+            
+            # DEBUG print the words of this node
+            # print(" ".join(words[int(element.get("begin")) : int(element.get("end"))]))
 
-                    if "sentid" in sentence_element.attrib:
-                        sentence_id = sentence_element.get("sentid")
+            if self.secondary_processing is not None:
+                # Secondary processing is set by children of the CaseStudy type
+                # This method will run processing to find lexical elements in the syntactic structure
+                secondary_data = self.secondary_processing(element)
+                # print(secondary_data)
 
-                    # Secondary processing is set by children of the CaseStudy type
-                    # This method will run processing to find lexical elements in the syntactic structure
-                    secondary_data = self.secondary_processing(element)
+                if secondary_data is None:
+                    with open("errors.txt", "at") as writer:
+                        writer.write(f"{filename},{sentence_id}\n")
+                    continue
 
-                    if secondary_data is None:
-                        with open("errors.txt", "at") as writer:
-                            writer.write(f"{filename},{sentence_id}\n")
-                        continue
-
-                    if type(secondary_data) == tuple:
-                        # With the lexical elements obtained, add them to our list of hits
-                        total_hits.append((sentence, filename, sentence_id, secondary_data))
-                    elif type(secondary_data) == list:
-                        for secondary_data_tuple in secondary_data:
-                            total_hits.append((sentence, filename, sentence_id, secondary_data_tuple))
+                if type(secondary_data) == tuple:
+                    # With the lexical elements obtained, add them to our list of hits
+                    total_hits.append((sentence, filename, sentence_id, secondary_data))
+                elif type(secondary_data) == list:
+                    for secondary_data_tuple in secondary_data:
+                        total_hits.append((sentence, filename, sentence_id, secondary_data_tuple))
 
             # Performance/memory improvement
             element.clear()

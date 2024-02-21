@@ -39,13 +39,17 @@ class RoodGroen(CaseStudy):
             tuple: a tuple containing the participle, auxiliary, participle lemma and auxiliary lemma
         """
 
+        root_element_id = element.get("id")
+
         # The following two xpaths are used to find the specific participles and auxiliaries
         # The query is the same for both orders, only the operators are different
         participle_xpath = Constants.SPECIFIC_XPATHS["participle"].replace(
             "$SIGN$", Constants.OPERATORS["participle"][self.order])
         auxiliary_xpath = Constants.SPECIFIC_XPATHS["auxiliary"].replace(
             "$SIGN$", Constants.OPERATORS["auxiliary"][self.order])
-        
+
+        # print(participle_xpath)
+
         try:
             participle_xpath = element.xpath(participle_xpath)[0]
             auxiliary_xpath = element.xpath(auxiliary_xpath)[0]
@@ -54,8 +58,18 @@ class RoodGroen(CaseStudy):
             participle_lemma = participle_xpath.get('lemma')
             auxiliary = auxiliary_xpath.get('word')
             auxiliary_lemma = auxiliary_xpath.get('lemma')
-            participle_index = participle_xpath.get("begin")
-            auxiliary_index = auxiliary_xpath.get("begin")
+            participle_index = int(participle_xpath.get("begin"))
+            auxiliary_index = int(auxiliary_xpath.get("begin"))
+
+            # To make sure we're dealing with a cluster (xpath is difficult)
+            # I check whether the distance in the sentence between participle and auxiliary is not too large
+            distance = participle_index - auxiliary_index
+            if abs(distance) > 2:
+                return None
+
+            # Sanity check
+            if (distance > 0 and self.order == "green") or (distance < 0 and self.order == "red"):
+                raise ValueError(f"Impossible distance for {root_element_id}")
         except IndexError:
             return None
 
