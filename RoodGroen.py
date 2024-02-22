@@ -29,10 +29,8 @@ with open(args.closed_items_path, "rt") as reader:
 
 # Find corpus hits
 rood_groen = RoodGroen(args.alpino_corpus_path, closed_class_items)
-print("[Filter]: Filtering red items")
-results_red = rood_groen.filter("red")
-print("[Filter] Filtering green items")
-results_green = rood_groen.filter("green")
+print("[Filter]: Filtering red and green items")
+results = rood_groen.filter("red_green")
 
 print("[Pandas] Preparing output")
 
@@ -48,17 +46,13 @@ def results_to_dataframe(results, order):
                "auxiliary_index": result[3][5],
                "file": result[1],
                "sentence_id": result[2],
-               "order": order}
+               "order": result[3][6]}
         df_dict.append(row)        
  
     return pd.DataFrame.from_dict(df_dict)
 
 # Convert results to dataframes
-df_red = results_to_dataframe(results_red, "red")
-df_green = results_to_dataframe(results_green, "green")
-
-# Combine both data frames
-df = pd.concat([df_red, df_green])
+df = results_to_dataframe(results, "red")
 
 # Remove duplicates (they exist now)
 print("[Pandas] Removing duplicates")
