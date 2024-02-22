@@ -47,11 +47,16 @@ class RoodGroen(CaseStudy):
             # The following two xpaths are used to find the specific participles and auxiliaries
             # The query is the same for both orders, only the operators are different
             participle_xpath = Constants.SPECIFIC_XPATHS["participle"].replace(
-                "$SIGN$", Constants.OPERATORS["participle"][order])
+                "$SIGN$", Constants.OPERATORS["participle"][order]).replace(
+                    "$ID$", root_element_id
+                )
             auxiliary_xpath = Constants.SPECIFIC_XPATHS["auxiliary"].replace(
-                "$SIGN$", Constants.OPERATORS["auxiliary"][order])
+                "$SIGN$", Constants.OPERATORS["auxiliary"][order]).replace(
+                    "$ID$", root_element_id
+                )
 
             # print(participle_xpath)
+            # print(auxiliary_xpath)
 
             try:
                 participle_xpath = element.xpath(participle_xpath)[0]
@@ -73,7 +78,10 @@ class RoodGroen(CaseStudy):
                 # Sanity check
                 if (distance > 0 and order == "green") or (distance < 0 and order == "red"):
                     print(f"Impossible distance for {sentence_id} in {filename}: {distance}")
+                    print(f"{participle}({participle_index}) / {auxiliary}({auxiliary_index})")
+                    continue
             except IndexError:
+                # print("Index error")
                 continue
 
             return participle, auxiliary, participle_lemma, auxiliary_lemma, participle_index, auxiliary_index, order
