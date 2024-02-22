@@ -29,11 +29,13 @@ class RoodGroen(CaseStudy):
 
         return super().filter(general_xpath)
 
-    def secondary_processing(self, element : ET) -> tuple:
+    def secondary_processing(self, element : ET, filename : str = "??.xml", sentence_id : str="??") -> tuple:
         """Apply secondary processing for the RoodGroen case study
 
         Args:
             element (ET): the element containing the matched sentence
+            filename (str): the name of the parsed file
+            sentence_id (str): the name of this sentence
 
         Returns:
             tuple: a tuple containing the participle, auxiliary, participle lemma and auxiliary lemma
@@ -70,7 +72,7 @@ class RoodGroen(CaseStudy):
 
                 # Sanity check
                 if (distance > 0 and order == "green") or (distance < 0 and order == "red"):
-                    print(f"Impossible distance for {root_element_id}")
+                    print(f"Impossible distance for {sentence_id} in {filename}: {distance}")
             except IndexError:
                 continue
 

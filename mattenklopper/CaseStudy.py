@@ -179,7 +179,7 @@ class CaseStudy:
             if self.secondary_processing is not None:
                 # Secondary processing is set by children of the CaseStudy type
                 # This method will run processing to find lexical elements in the syntactic structure
-                secondary_data = self.secondary_processing(element)
+                secondary_data = self.secondary_processing(element, filename, sentence_id)
                 # print(secondary_data)
 
                 if secondary_data is None:
