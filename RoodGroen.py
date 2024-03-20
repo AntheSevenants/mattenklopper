@@ -58,7 +58,7 @@ df = results_to_dataframe(results, "red")
 
 # Remove duplicates (they exist now)
 print("[Pandas] Removing duplicates")
-df = df.drop_duplicates(subset=["sentence", "participle_index", "auxiliary_index"])
+df = df.drop_duplicates(subset=["sentence_id", "participle_index", "auxiliary_index"])
 
 print(f"[Pandas] Writing CSV file {args.output_path}")
 
