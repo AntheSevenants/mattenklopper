@@ -44,9 +44,11 @@ def results_to_dataframe(results, order):
                "auxiliary_lemma": result[3][3],
                "participle_index": result[3][4],
                "auxiliary_index": result[3][5],
+               "clause_start_index": result[3][6],
+               "clause_end_index": result[3][7],
                "file": result[1],
                "sentence_id": result[2],
-               "order": result[3][6]}
+               "order": result[3][8]}
         df_dict.append(row)        
  
     return pd.DataFrame.from_dict(df_dict)

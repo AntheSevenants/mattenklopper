@@ -42,6 +42,8 @@ class RoodGroen(CaseStudy):
         """
 
         root_element_id = element.get("id")
+        clause_start_index = int(element.get("begin"))
+        clause_end_index = int(element.get("end"))
 
         for order in ["red", "green"]:
             # The following two xpaths are used to find the specific participles and auxiliaries
@@ -84,6 +86,6 @@ class RoodGroen(CaseStudy):
                 # print("Index error")
                 continue
 
-            return participle, auxiliary, participle_lemma, auxiliary_lemma, participle_index, auxiliary_index, order
+            return participle, auxiliary, participle_lemma, auxiliary_lemma, participle_index, auxiliary_index, clause_start_index, clause_end_index, order
 
         return None
